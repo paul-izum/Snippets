@@ -23,6 +23,7 @@
                     <th scope="col">Название</th>
                     <th scope="col">Дата создания</th>
                     <th scope="col">Пользователь</th>
+                    <th scope="col">Публичный</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -36,7 +37,8 @@
                             <a href="{% url 'snippet-edit' id=snippet.id %}"><i class="fas fa-edit"></i></a>
                         </td>
                         <td>{{ snippet.creation_date }}</td>
-                        <td> {{ snippet.user.username }}</td>
+                        <td> {{ snippet.user }}</td>
+                        <td> {{ snippet.public }}</td>
                     </tr>
                 {% endfor %}
 

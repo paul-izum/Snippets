@@ -7,7 +7,7 @@ class SnippetForm(ModelForm):
     class Meta:
         model = Snippet
         # Описываем поля, которые будем заполнять в форме
-        fields = ['name', 'lang', 'code', 'rate', 'state']
+        fields = ['name', 'lang', 'code', 'rate', 'public']
 
         labels = {
             "name": ""

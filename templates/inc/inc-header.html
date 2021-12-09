@@ -11,17 +11,18 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarCollapse">
-                <ul class="navbar-nav mr-auto">
+                 <ul class="navbar-nav mr-auto">
                     <li class="form-inline">
                         <a class="btn btn-outline-secondary" href="{% url 'snippets-add' %}">Добавить сниппет</a>
                     </li>
                     <li class="form-inline">
                         <a class="btn btn-outline-info" href="{% url 'snippets-list' %}">Посмотреть сниппеты</a>
                     </li>
-                    {%If request.user.is_authe%}
+                    {% if request.user.is_authenticated %}
                     <li class="form-inline">
                         <a class="btn btn-outline-info" href="{% url 'snippets-mine' %}">Мои сниппеты</a>
                     </li>
+                    {% endif %}
                 </ul>
             </div>
             {% if request.user.is_authenticated %}

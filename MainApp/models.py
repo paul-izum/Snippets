@@ -7,11 +7,6 @@ LANG_CHOICES = (
     ("cs", "C#"),
 )
 
-STATE_CHOICES =(
-    ("pb","public"),
-    ("prt","private")
-
-)
 
 
 class Snippet(models.Model):
@@ -22,4 +17,4 @@ class Snippet(models.Model):
     rate = models.PositiveSmallIntegerField(null=False, blank=False, default=1)
     user = models.ForeignKey(to=User, on_delete=models.CASCADE,
                              blank=True, null=True)
-    state = models.CharField(max_length=30, choices=STATE_CHOICES )
+    public = models.BooleanField(default=True)
