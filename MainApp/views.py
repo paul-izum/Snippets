@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from MainApp.models import Snippet
 from django.core.exceptions import ObjectDoesNotExist
 from MainApp.forms import SnippetForm
-from datetime import datetime
+from django.contrib import auth
 
 
 def index_page(request):
@@ -13,11 +13,9 @@ def index_page(request):
 
 def snippets_page(request):
     snippets = Snippet.objects.all()
-    count = Snippet.objects.all().count()
     context = {
         'pagename': 'Просмотр сниппетов',
-        "snippets": snippets,
-        "count": count
+        "snippets": snippets
     }
     return render(request, 'pages/view_snippets.html', context)
 
@@ -46,7 +44,10 @@ def add_snippet_page(request):
     if request.method == "POST":
         form = SnippetForm(request.POST)
         if form.is_valid():
-            form.save()
+            snippet = form.save(commit=False)
+            if request.user.is_authenticated:
+                snippet.user = request.user
+                snippet.save()
             return redirect("snippets-list")
         return render(request, 'add_snippet.html', {'form': form})
 
@@ -60,9 +61,6 @@ def snippet_delete(request, id):
 def snippet_edit(request, id):
     try:
         snippet = Snippet.objects.get(id=id)
-        print(snippet.creation_date)
-        # snippet.creation_date = datetime.strptime(snippet.creation_date, '%b. %d, %Y, %I:%M%p')
-        # print(snippet.creation_date)
     except ObjectDoesNotExist:
         raise Http404
     if request.method == "GET":
@@ -76,9 +74,39 @@ def snippet_edit(request, id):
     if request.method == "POST":
         form_data = request.POST
         snippet.name = form_data["name"]
-        print(form_data["creation_date"])
-        snippet.creation_date = datetime.strptime(form_data["creation_date"].replace('p.m.','PM').replace('a.m.','AM'), '%b. %d, %Y, %I:%M %p')
-        print(snippet.creation_date)
+        snippet.creation_date = form_data["creation_date"]
         snippet.code = form_data["code"]
         snippet.save()
-        return redirect("snippets-list")
+        return redirect('snippets-list')
+
+
+def login_page(request):
+    if request.method == 'POST':
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = auth.authenticate(request, username=username, password=password)
+        if user is not None:
+            auth.login(request, user)
+        else:
+            # Return error message
+            pass
+
+    return redirect('home')
+
+
+def logout(request):
+    auth.logout(request)
+    return redirect('home')
+
+
+
+def snippets_mine(request):
+    user = request.user.id
+    print(user)
+    #snippets = Snippet.objects.filter(user=user)
+    snippets = Snippet.objects.all().filter(user=user)
+    context = {
+        'pagename': 'Мои сниппеты',
+        "snippets": snippets
+    }
+    return render(request, 'pages/view_snippets.html', context)

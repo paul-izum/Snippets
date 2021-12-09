@@ -31,7 +31,7 @@
                     Название: <input name="name" type="text" value="{{ snippet.name }}" class="form-control">
                 </div>
                 <div class="col col-4">
-                    Дата создания:<input name="creation_date" type="text" value="{{ snippet.creation_date }}" class="form-control">
+                    Дата создания:<input name="creation_date" type="date" value="{{ snippet.creation_date|date:'Y-m-d' }}" class="form-control">
                 </div>
             </div>
             <hr>
