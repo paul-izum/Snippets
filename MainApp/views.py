@@ -2,7 +2,7 @@ from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from MainApp.models import Snippet
 from django.core.exceptions import ObjectDoesNotExist
-from MainApp.forms import SnippetForm
+from MainApp.forms import SnippetForm, UserRegistrationForm
 from django.contrib import auth
 
 
@@ -16,6 +16,15 @@ def snippets_page(request):
     context = {
         'pagename': 'Просмотр сниппетов',
         "snippets": snippets
+    }
+    return render(request, 'pages/view_snippets.html', context)
+
+
+def snippets_mine(request):
+    user_snippets = Snippet.objects.filter(user=request.user)
+    context = {
+        'pagename': 'Мои сниппеты',
+        "snippets": user_snippets
     }
     return render(request, 'pages/view_snippets.html', context)
 
@@ -76,9 +85,11 @@ def snippet_edit(request, id):
 
     if request.method == "POST":
         form_data = request.POST
+        public = form_data.get("public") == 'on'
         snippet.name = form_data["name"]
         snippet.creation_date = form_data["creation_date"]
         snippet.code = form_data["code"]
+        snippet.public = public
         snippet.save()
         return redirect('snippets-list')
 
@@ -91,8 +102,11 @@ def login_page(request):
         if user is not None:
             auth.login(request, user)
         else:
-            # Return error message
-            pass
+            context = {
+                'pagename': 'PythonBin',
+                'errors': ['неверный логин или пароль']
+            }
+            return render(request, 'pages/index.html', context)
 
     return redirect('home')
 
@@ -102,22 +116,21 @@ def logout(request):
     return redirect('home')
 
 
-
-def snippets_mine(request):
-    user = request.user.id
-    print(request.user)
-    #snippets = Snippet.objects.filter(user=user)
-    snippets = Snippet.objects.all().filter(user=user)
-    context = {
-        'pagename': 'Мои сниппеты',
-        "snippets": snippets
-    }
-    return render(request, 'pages/view_snippets.html', context)
 def register(request):
-    form = UserRegistrationForm()
-    context = {
-        'pagename': 'регистрация пользвоателя',
-        'form': form
-
-    }
-    return render(request)
+    if request.method == 'GET':
+        form = UserRegistrationForm()
+        context = {
+            'pagename': 'Регистрация пользователя',
+            'form': form
+        }
+        return render(request, 'pages/register.html', context)
+    else:  # POST
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+        context = {
+            'pagename': 'Регистрация пользователя',
+            'form': form
+        }
+        return render(request, 'pages/register.html', context)
