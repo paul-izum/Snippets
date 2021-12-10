@@ -2,8 +2,9 @@ from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from MainApp.models import Snippet
 from django.core.exceptions import ObjectDoesNotExist
-from MainApp.forms import SnippetForm, UserRegistrationForm
+from MainApp.forms import SnippetForm, UserRegistrationForm, CommentForm
 from django.contrib import auth
+
 
 
 def index_page(request):
@@ -37,7 +38,9 @@ def single_snippet_page(request, id):
     context = {
         'pagename': 'Страница сниппета',
         "snippet": snippet,
-        "type": "view"
+        "type": "view",
+        "comment_form": CommentForm(),
+        "comments": snippet.comments.all()
     }
     return render(request, 'pages/snippet_page.html', context)
 
@@ -134,3 +137,16 @@ def register(request):
             'form': form
         }
         return render(request, 'pages/register.html', context)
+
+def comment_add(request):
+    if request.method == "POST":
+        comment_form = CommentForm(request.POST)
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.author = request.user
+            comment.snippet = Snippet.objects.get(id=request.POST["id"])
+            comment.save()
+
+        return redirect(f'/snippet/page/{request.POST["id"]}')
+
+    raise Http404
