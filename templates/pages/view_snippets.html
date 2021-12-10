@@ -29,17 +29,23 @@
                 <tbody>
 
                 {% for snippet in snippets %}
-                    <tr>
-                        <td scope="row">{{ snippet.id }}</td>
-                        <td>
-                            <a href="{% url 'snippet-page' id=snippet.id %}">{{ snippet.name }}</a>
-                            <a href="{% url 'snippet-delete' id=snippet.id %}"><i class="fas fa-trash-alt"></i></a>
-                            <a href="{% url 'snippet-edit' id=snippet.id %}"><i class="fas fa-edit"></i></a>
-                        </td>
-                        <td>{{ snippet.creation_date }}</td>
-                        <td> {{ snippet.user }}</td>
-                        <td> {{ snippet.public }}</td>
-                    </tr>
+                <tr>
+                    <td scope="row">{{ snippet.id }}</td>
+
+
+                    <td>
+                        <a href="{% url 'snippet-page' id=snippet.id %}">{{ snippet.name }}</a>
+                        {% if request.user == snippet.name %}
+                        <a href="{% url 'snippet-delete' id=snippet.id %}"><i class="fas fa-trash-alt"></i></a>
+                        <a href="{% url 'snippet-edit' id=snippet.id %}"><i class="fas fa-edit"></i></a>
+                        {% endif %}
+                    </td>
+
+
+                    <td>{{ snippet.creation_date }}</td>
+                    <td> {{ snippet.user }}</td>
+                    <td> {{ snippet.public }}</td>
+                </tr>
                 {% endfor %}
 
                 </tbody>

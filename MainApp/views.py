@@ -1,4 +1,4 @@
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from MainApp.models import Snippet
 from django.core.exceptions import ObjectDoesNotExist
@@ -54,7 +54,10 @@ def add_snippet_page(request):
 
 def snippet_delete(request, id):
     snippet = Snippet.objects.get(id=id)
-    snippet.delete()
+    if snippet.user == request.user:
+        snippet.delete()
+    else:
+        raise HttpResponseForbidden
     return redirect("snippets-list")
 
 
@@ -102,7 +105,7 @@ def logout(request):
 
 def snippets_mine(request):
     user = request.user.id
-    print(user)
+    print(request.user)
     #snippets = Snippet.objects.filter(user=user)
     snippets = Snippet.objects.all().filter(user=user)
     context = {
@@ -110,3 +113,11 @@ def snippets_mine(request):
         "snippets": snippets
     }
     return render(request, 'pages/view_snippets.html', context)
+def register(request):
+    form = UserRegistrationForm()
+    context = {
+        'pagename': 'регистрация пользвоателя',
+        'form': form
+
+    }
+    return render(request)
